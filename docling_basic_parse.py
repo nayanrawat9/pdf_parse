@@ -17,9 +17,9 @@ def extract_images_and_modify_markdown(source_path, output_folder="images"):
     pipeline_options = PdfPipelineOptions()  
     pipeline_options.generate_picture_images = True  
     pipeline_options.images_scale = 2  
-    pipeline_options.do_picture_classification = True  
+    #pipeline_options.do_picture_classification = True  
     pipeline_options.do_formula_enrichment = True
-    #pipeline_options.picture_description_options = granite_picture_description
+    pipeline_options.picture_description_options = granite_picture_description
       
     # Create converter with proper configuration  
     converter = DocumentConverter(format_options={  
@@ -92,7 +92,7 @@ def extract_images_and_modify_markdown(source_path, output_folder="images"):
 if __name__ == "__main__":  
     source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\4__Memories.pdf"  
     source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\21__Analog_to_Digital_Converter___ADC.pdf"
-    #source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\2__About_Code_Examples.pdf" 
+    source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\2__About_Code_Examples.pdf" 
      
     # Extract images and get modified markdown  
     modified_markdown, saved_images = extract_images_and_modify_markdown(source)  
