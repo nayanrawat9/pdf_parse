@@ -1,11 +1,11 @@
-import os  
-import base64  
-import re  
-from pathlib import Path  
-from PIL import Image  
+import os
+import base64
+import re
+from pathlib import Path
+from PIL import Image
 from io import BytesIO  
 from docling.document_converter import DocumentConverter, PdfFormatOption  
-from docling.datamodel.pipeline_options import PdfPipelineOptions  
+from docling.datamodel.pipeline_options import PdfPipelineOptions, granite_picture_description
 from docling.datamodel.base_models import InputFormat  
 from docling_core.types.doc import ImageRefMode  
   
@@ -18,6 +18,8 @@ def extract_images_and_modify_markdown(source_path, output_folder="images"):
     pipeline_options.generate_picture_images = True  
     pipeline_options.images_scale = 2  
     pipeline_options.do_picture_classification = True  
+    pipeline_options.do_formula_enrichment = True
+    #pipeline_options.picture_description_options = granite_picture_description
       
     # Create converter with proper configuration  
     converter = DocumentConverter(format_options={  
@@ -25,7 +27,7 @@ def extract_images_and_modify_markdown(source_path, output_folder="images"):
     })  
       
     # Convert the document  
-    result = converter.convert(source_path)  
+    result = converter.convert(source = source_path)  
     doc = result.document  
       
     # Extract and save images  
@@ -89,7 +91,9 @@ def extract_images_and_modify_markdown(source_path, output_folder="images"):
 # Usage example  
 if __name__ == "__main__":  
     source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\4__Memories.pdf"  
-      
+    source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\21__Analog_to_Digital_Converter___ADC.pdf"
+    #source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\2__About_Code_Examples.pdf" 
+     
     # Extract images and get modified markdown  
     modified_markdown, saved_images = extract_images_and_modify_markdown(source)  
       
