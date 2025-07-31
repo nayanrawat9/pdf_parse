@@ -5,9 +5,11 @@ from pathlib import Path
 from PIL import Image
 from io import BytesIO  
 from docling.document_converter import DocumentConverter, PdfFormatOption  
+from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions
 from docling.datamodel.pipeline_options import PdfPipelineOptions, granite_picture_description
 from docling.datamodel.base_models import InputFormat  
 from docling_core.types.doc import ImageRefMode  
+from docling.datamodel.settings import settings
   
 def extract_images_and_modify_markdown(source_path, output_folder="images"):  
     # Create output folder if it doesn't exist  
@@ -22,16 +24,34 @@ def extract_images_and_modify_markdown(source_path, output_folder="images"):
     pipeline_options.do_formula_enrichment = True
     pipeline_options.picture_description_options = granite_picture_description
     pipeline_options.generate_table_images = True
-      
+    pipeline_options.do_table_structure = True
+    pipeline_options.table_structure_options.do_cell_matching = True
+    
+    
+    accelerator_options = AcceleratorOptions(
+        num_threads=8, device=AcceleratorDevice.CPU)  
+    #accelerator_options = AcceleratorOptions(
+    #     num_threads=8, device=AcceleratorDevice.CUDA)
+    
+    pipeline_options.accelerator_options = accelerator_options
+
     # Create converter with proper configuration  
     converter = DocumentConverter(format_options={  
         InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)  
     })  
-      
+    
+
+    # Enable the profiling to measure the time spent
+    settings.debug.profile_pipeline_timings = True
+
     # Convert the document  
-    result = converter.convert(source = source_path, page_range=(7, 8))  
-    doc = result.document  
-      
+    conversion_result = converter.convert(source = source_path, page_range=(1, 1))  
+    doc = conversion_result.document  
+
+    # List with total time per document
+    doc_conversion_secs = conversion_result.timings["pipeline_total"].times
+    print(f"Conversion secs: {doc_conversion_secs}")
+
     # Extract and save images  
     image_filenames = []  
     for i, picture in enumerate(doc.pictures):  
