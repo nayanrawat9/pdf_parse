@@ -1,10 +1,13 @@
 # pdf_parse
 
-1. run pdf_chapter_splitter - a folder with pdf chapters and ToC intact will be created. works only with pdfs with ToC
+1. run pdf_chapter_splitter - a folder at90can128_rm.pdf_chapters with pdf chapters and ToC intact will be created. works only with pdfs with ToC
 
-2. run process_pdf_toc_sections - input is the pdf folder and output is another folder with txt files section wise using pymupdf
+2. Run docling_basic_parse_GUI.pyw - Docling based parser script to convert pdf to .md with images embedded
 
-3. (TODO) identify tables with pattern: enter pattern of table; then table names will be found
+3. Run markdown_image_processor_gui.py - Vision LM based parsing to convert embededded images in .md to tables/text in .md.
+
+Misc. run process_pdf_toc_sections - input is the pdf folder and output is another folder with txt files section wise using pymupdf
+
 
 
 ------------------------------------------------------------------------------------------------------------------------------
