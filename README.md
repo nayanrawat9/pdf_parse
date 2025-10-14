@@ -4,7 +4,8 @@
 
 2. Run docling_basic_parse_GUI.pyw - Docling based parser script to convert pdf to .md with images embedded
 
-3. Run markdown_image_processor_gui.py - Vision LM based parsing to convert embededded images in .md to tables/text in .md.
+3. 2 options: 1- For GUI: Run markdown_image_processor_gui.pyw - Vision LM based parsing to convert embededded images in .md to tables/text in .md.
+              2- For CLI: Run markdown_image_processor_cli.py
 
 Misc. run process_pdf_toc_sections - input is the pdf folder and output is another folder with txt files section wise using pymupdf
 
