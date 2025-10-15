@@ -13,7 +13,7 @@ from typing import List, Tuple, Optional
 
 
 # Available models
-MODELS = ["gemma3:27b-it-fp16","gemma3:27b", "qwen2.5vl:7b", "qwen2.5vl:3b", "gemma3:4b"]
+MODELS = ["qwen2.5vl:32b", "gemma3:27b-it-fp16","gemma3:27b", "qwen2.5vl:7b", "qwen2.5vl:72b",  "gemma3:4b"]
 
 # Base prompt with one-shot example
 BASE_PROMPT = """
@@ -201,7 +201,7 @@ Examples:
   %(prog)s /path/to/input.md --model gemma3:4b --output /path/to/output.md
 
 Available models:
-  qwen2.5vl:7b, qwen2.5vl:3b, gemma3:4b, gemma3:27b, gemma3:27b-it-fp16
+  qwen2.5vl:7b, qwen2.5vl:32b, qwen2.5vl:72b, gemma3:4b, gemma3:27b, gemma3:27b-it-fp16
         """
     )
 
