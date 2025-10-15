@@ -6,6 +6,9 @@
 
 3. 2 options: 1- For GUI: Run markdown_image_processor_gui.pyw - Vision LM based parsing to convert embededded images in .md to tables/text in .md.
               2- For CLI: Run markdown_image_processor_cli.py
+                - Example commands:
+              python3.13 markdown_image_processor_cli.py 4__Memories_with_images.md --model qwen2.5vl:32b
+                python3.13 markdown_image_processor_cli.py 4__Memories_with_images.md --model gemma3:27b-it-fp16
 
 Misc. run process_pdf_toc_sections - input is the pdf folder and output is another folder with txt files section wise using pymupdf
 
