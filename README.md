@@ -1,71 +1,76 @@
-# pdf_parse
+# PDF Processing and Parsing Toolkit
 
-1. run pdf_chapter_splitter - a folder at90can128_rm.pdf_chapters with pdf chapters and ToC intact will be created. works only with pdfs with ToC
+This repository contains a collection of Python scripts for processing, parsing, and extracting information from PDF documents. The toolkit is designed to handle complex PDFs, including those with tables, images, and a structured table of contents. It leverages a combination of libraries and models, including `docling`, `camelot`, `pymupdf`, and various language models, to provide a comprehensive solution for PDF data extraction.
 
-2. Run docling_basic_parse_GUI.pyw - Docling based parser script to convert pdf to .md with images embedded
+## Features
 
-3. 2 options: 1- For GUI: Run markdown_image_processor_gui.pyw - Vision LM based parsing to convert embededded images in .md to tables/text in .md.
-              2- For CLI: Run markdown_image_processor_cli.py
-                - Example commands:
-              python3.13 markdown_image_processor_cli.py 4__Memories_with_images.md --model qwen2.5vl:32b
-                python3.13 markdown_image_processor_cli.py 4__Memories_with_images.md --model gemma3:27b-it-fp16
+- **PDF Chapter Splitting**: Automatically split a PDF into separate chapter files based on its table of contents.
+- **PDF to Markdown Conversion**: Convert PDF files into Markdown format, preserving text and embedding images.
+- **Image to Text/Table Conversion**: Utilize Vision Language Models (VLMs) to analyze images within the Markdown and convert them into text or Markdown tables.
+- **Text and Table Extraction**: Advanced tools for extracting text and tables from PDFs, with support for different table structures.
+- **GUI and CLI Interfaces**: Many scripts offer both graphical and command-line interfaces for ease of use.
+- **Content Chunking**: Scripts to chunk Markdown content for further processing with language models.
 
-Misc. run process_pdf_toc_sections - input is the pdf folder and output is another folder with txt files section wise using pymupdf
+## Installation
 
+To use these scripts, you need to install the required Python libraries. You can install them using pip and the provided `requirements.txt` file:
 
+```bash
+pip install -r requirements.txt
+```
 
-------------------------------------------------------------------------------------------------------------------------------
-Some findings trying to parse tables:
+## Workflow
 
-1- Camelot has 4 algorithms: ["stream", "lattice", "network", "hybrid"]
-If there are bounding boxes already- lattice works well. for this pdf, all tables have bounding boxes- they can be extracted from "lattice" algorithm.
-But the registrr information is there in tabular format wthout bounding boxes. For that, "network" OR "hybrid" works well.
+The recommended workflow for processing a PDF is as follows:
 
-2- Unstructured finds all contents and the bounding boxes- can be used to detect positions of all content for a general pdf
+1.  **Split the PDF into Chapters**:
+    -   Use either the GUI or the CLI script.
+    -   **GUI**: Run `pdf_chapter_splitter_GUI.pyw`.
+    -   **CLI**: Run `pdf_chapter_splitter_CLI.py`.
+        ```bash
+        python pdf_chapter_splitter_CLI.py your_document.pdf -o output_directory
+        ```
+    -   This will create a folder containing the individual PDF chapters. This works best for PDFs with a table of contents.
 
-3- Layoutparser uses OCR - tesseract which is able to give bounding boxes but due to its english language training data, it is not able to get the exact text 
-like register names, bit names.
+2.  **Convert PDF Chapters to Markdown**:
+    -   Use the `docling_basic_parse_GUI.pyw` script.
+    -   This script uses `docling` to convert the PDF chapters into Markdown files with embedded images.
 
+3.  **Process Images in Markdown**:
+    -   You have two options for this step:
+        -   **GUI**: Run `markdown_image_processor_gui.pyw`. This provides a graphical interface for processing the images.
+        -   **CLI**: Run `markdown_image_processor_cli.py`. This allows you to process the images from the command line.
+            -   Example commands:
+                ```bash
+                python markdown_image_processor_cli.py 4__Memories_with_images.md --model qwen2.5vl:32b
+                python markdown_image_processor_cli.py 4__Memories_with_images.md --model gemma3:27b-it-fp16
+                ```
+    -   This step uses a Vision Language Model to convert the embedded images into Markdown tables or text.
 
-so the idea for this pdf is to use combination of camelot and pymupdf to parse register information
+## Scripts
 
+Here is a brief description of the main scripts in this repository:
 
+-   `pdf_chapter_splitter_GUI.pyw`: A GUI tool to split a PDF into chapters based on its table of contents.
+-   `pdf_chapter_splitter_cli.py`: The command-line version of the PDF chapter splitter.
+    ```bash
+    # Basic usage (output folder is created automatically)
+    python pdf_chapter_splitter_cli.py my_document.pdf
 
-PDF parsing findings- https://rtxusers-my.sharepoint.us/personal/e40065689_adxuser_com/Documents/MVP-parsing.pptx?web=1
+    # Specify an output directory
+    python pdf_chapter_splitter_cli.py my_document.pdf --output_dir my_chapters
+    ```
+-   `docling_basic_parse_GUI.pyw`: A GUI tool that uses `docling` to parse a PDF and convert it to a Markdown file with embedded images.
+-   `markdown_image_processor_gui.pyw`: A GUI tool to process images in a Markdown file and convert them to text or tables using a VLM.
+-   `markdown_image_processor_cli.py`: The command-line version of the image processor.
+-   `process_pdf_toc_sections_GUI.pyw`: A GUI tool to extract text sections from a PDF based on its table of contents and save them as `.txt` files.
+-   `chunking.py`: A script to chunk Markdown files into smaller pieces, which is useful for processing with language models.
+-   `table_extractor_gui_improved.py`: A GUI tool to extract tables from images using a language model.
+-   `camelot_table_extraction_comparison.py`: A script for comparing different table extraction algorithms in `camelot`.
+-   `layoutparser_OCR_demo.py`: A demonstration of using `layoutparser` and OCR for text and layout detection.
+-   `relevance_filter.py`: A script for filtering content based on relevance.
+-   `unstructured_pdf_element_extractor_GUI.py`: A GUI tool for extracting elements from a PDF using the `unstructured` library.
 
+## Miscellaneous
 
-some libraries:
-gfmt - does not work, not updated
-docling - promising; extracts all text and some tables and positions of images.; but some tables were detected as images instead of tables. 
-Camelot-  "lattice" algorithm works well for merged cells and detects all tables with visible boundaries. However, it may also identify some non-table elements that visually resemble tables due to their box-like appearance in the PDF.
-pymupdf - for text extraction, supports chunking for llm
-unstructured - paid
-layoutparser - bounding boxes of all elements.
-nanonets - requires large GPU for local inference
-tableextraction - https://github.com/cvlab-stonybrook/TableExtraction
-tabula- needs java, not good for merged cells
-microsoft/table-transformer-detection - identify and locate tables within an image, drawing bounding boxes around them. It does not perform structure recognition (identifying rows, columns, or cells) or data extraction. Slow.
-
-idea: take text order from docling, take bounding boxes from layout parser, find
-correct position of images and replace them in docling.
-
-train for table detection using: https://github.com/ismail-mebsout/Parsing-PDFs-using-YOLOV3
-
-
-Some sites:
-https://www.youtube.com/watch?v=9lBTS5dM27c&t=1056s
-https://github.com/daveebbelaar/ai-cookbook/tree/main/knowledge/docling
-
-https://medium.com/nanonets/extract-tables-from-pdf-b8f7d7392b7d
-https://github.com/jsvine/pdfplumber/issues/79
-https://stackoverflow.com/questions/17591426/how-can-i-extract-tables-as-structured-data-from-pdf-documents
-https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/?view=doc-intel-4.0.0
-https://github.com/mattlgroff/pdf-to-markdown
-https://www.deeplearning.ai/short-courses/preprocessing-unstructured-data-for-llm-applications/
-https://github.com/Filimoa/open-parse
-https://www.aryn.ai/
-https://github.com/VikParuchuri/tabled
-https://github.com/datalab-to/marker
-https://github.com/datalab-to/pdftext
-https://github.com/datalab-to/surya
-https://github.com/VikParuchuri/zero_to_gpt
+This repository also contains various other scripts and notebooks for experimenting with different PDF parsing and table extraction techniques. The `parser_comparison_notebook.py` provides more insights into the findings and comparisons of different libraries.
