@@ -59,6 +59,9 @@ from pathlib import Path
 from typing import Optional, Tuple, List
 import traceback
 
+# PDF page count imports
+import pypdfium2 as pdfium
+
 # Docling imports
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions
@@ -291,6 +294,16 @@ Examples:
             for handler in self.logger.handlers:
                 handler.setLevel(logging.WARNING)
 
+    def _get_pdf_page_count(self) -> int:
+        """Get the total number of pages in the PDF document."""
+        try:
+            pdf = pdfium.PdfDocument(self.args.input_file)
+            page_count = len(pdf)
+            pdf.close()
+            return page_count
+        except Exception as e:
+            raise ConfigurationError(f"Failed to read PDF page count: {e}")
+
     def _validate_configuration(self) -> None:
         """Validate the parsed configuration and raise appropriate errors."""
         # Validate input file
@@ -300,12 +313,27 @@ Examples:
         if not self.args.input_file.lower().endswith('.pdf'):
             raise ConfigurationError(f"Input file must be a PDF: {self.args.input_file}")
 
+        # Get PDF page count if end_page is not specified
+        actual_end_page = self.args.end_page
+        if self.args.end_page is None:
+            try:
+                total_pages = self._get_pdf_page_count()
+                actual_end_page = total_pages
+                self.logger.info(f"PDF has {total_pages} pages, setting end page to {actual_end_page}")
+            except ConfigurationError as e:
+                raise e
+            except Exception as e:
+                raise ConfigurationError(f"Failed to determine PDF page count: {e}")
+
         # Validate page range
         if self.args.start_page < 1:
             raise ConfigurationError("Start page must be greater than 0")
 
-        if self.args.end_page is not None and self.args.end_page < self.args.start_page:
+        if actual_end_page < self.args.start_page:
             raise ConfigurationError("End page must be greater than or equal to start page")
+
+        # Store the resolved end page for later use
+        self.resolved_end_page = actual_end_page
 
         # Validate threads
         if self.args.threads < 1:
@@ -379,7 +407,9 @@ Examples:
         self.logger.info(f"Input file: {self.args.input_file}")
         self.logger.info(f"Output directory: {self._get_output_paths()[0]}")
         self.logger.info(f"Output markdown: {self._get_output_paths()[1]}")
-        self.logger.info(f"Page range: {self.args.start_page} - {self.args.end_page or 'end'}")
+        # Use resolved end page if available, otherwise fall back to original logic
+        end_page_display = self.resolved_end_page if hasattr(self, 'resolved_end_page') else (self.args.end_page or 'end')
+        self.logger.info(f"Page range: {self.args.start_page} - {end_page_display}")
         self.logger.info(f"Generate pictures: {self.args.generate_pictures}")
         self.logger.info(f"Image scale: {self.args.images_scale}")
         self.logger.info(f"Picture classification: {self.args.picture_classification}")
@@ -411,7 +441,9 @@ Examples:
             print("=" * 50)
             print(f"Input File:             {self.args.input_file}")
             print(f"Output Directory:       {self._get_output_paths()[0]}")
-            print(f"Page Range:             {self.args.start_page} - {self.args.end_page or 'end'}")
+            # Use resolved end page if available, otherwise fall back to original logic
+            end_page_display = self.resolved_end_page if hasattr(self, 'resolved_end_page') else (self.args.end_page or 'end')
+            print(f"Page Range:             {self.args.start_page} - {end_page_display}")
             print(f"Generate Pictures:      {self.args.generate_pictures}")
             print(f"Image Scale:           {self.args.images_scale}x")
             print(f"Picture Classification: {self.args.picture_classification}")
@@ -443,8 +475,10 @@ Examples:
             os.makedirs(output_dir, exist_ok=True)
 
             # Determine page range for processing
-            # Handle None end_page properly for Docling converter
-            if self.args.end_page is not None:
+            # Use resolved end page if available, otherwise fall back to original logic
+            if hasattr(self, 'resolved_end_page'):
+                page_range = (self.args.start_page, self.resolved_end_page)
+            elif self.args.end_page is not None:
                 page_range = (self.args.start_page, self.args.end_page)
             else:
                 # Don't pass page_range at all if end_page is None to avoid Docling validation error
