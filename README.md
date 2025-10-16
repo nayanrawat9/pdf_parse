@@ -33,8 +33,27 @@ The recommended workflow for processing a PDF is as follows:
     -   This will create a folder containing the individual PDF chapters. This works best for PDFs with a table of contents.
 
 2.  **Convert PDF Chapters to Markdown**:
-    -   Use the `docling_basic_parse_GUI.pyw` script.
-    -   This script uses `docling` to convert the PDF chapters into Markdown files with embedded images.
+    -   You have two options for this step:
+        -   **GUI**: Use the `docling_basic_parse_GUI.pyw` script for a graphical interface.
+        -   **CLI**: Use the `docling_basic_parse_cli.py` script for command-line processing.
+            ```bash
+            # Basic usage
+            python docling_basic_parse_cli.py input.pdf
+
+            # Advanced usage with custom options
+            python docling_basic_parse_cli.py input.pdf \
+                --output-dir custom_output \
+                --start-page 1 --end-page 20 \
+                --images-scale 3.0 \
+                --threads 4 --device CPU \
+                --table-images --table-structure \
+                --code-enrichment --formula-enrichment
+
+            # View all available options
+            python docling_basic_parse_cli.py --help
+            ```
+    -   Both scripts use `docling` to convert PDF chapters into Markdown files with embedded images.
+    -   The CLI version offers additional configuration options for image scaling, table processing, and performance settings.
 
 3.  **Process Images in Markdown**:
     -   You have two options for this step:
@@ -61,6 +80,17 @@ Here is a brief description of the main scripts in this repository:
     python pdf_chapter_splitter_cli.py my_document.pdf --output_dir my_chapters
     ```
 -   `docling_basic_parse_GUI.pyw`: A GUI tool that uses `docling` to parse a PDF and convert it to a Markdown file with embedded images.
+-   `docling_basic_parse_cli.py`: A CLI tool with extensive configuration options for PDF parsing and conversion:
+    ```bash
+    # Features:
+    - PDF to Markdown conversion with image extraction
+    - Configurable page range processing
+    - Image scaling and classification options
+    - Code and formula enrichment
+    - Table structure recognition and extraction
+    - Multi-threaded processing with CPU/CUDA support
+    - Detailed logging and progress reporting
+    ```
 -   `markdown_image_processor_gui.pyw`: A GUI tool to process images in a Markdown file and convert them to text or tables using a VLM.
 -   `markdown_image_processor_cli.py`: The command-line version of the image processor.
 -   `process_pdf_toc_sections_GUI.pyw`: A GUI tool to extract text sections from a PDF based on its table of contents and save them as `.txt` files.

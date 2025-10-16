@@ -11,9 +11,12 @@ from docling.datamodel.base_models import InputFormat
 from docling_core.types.doc import ImageRefMode  
 from docling.datamodel.settings import settings
   
-def extract_images_and_modify_markdown(source_path, output_folder="images"):  
+def extract_images_and_modify_markdown(source_path, output_folder="images", page_range=None):  
     # Create output folder if it doesn't exist  
     os.makedirs(output_folder, exist_ok=True)  
+    
+    if page_range is None:
+        page_range = (1, 1)  # Default to first page only
       
     # Configure pipeline to generate picture images  
     pipeline_options = PdfPipelineOptions()  
@@ -45,7 +48,7 @@ def extract_images_and_modify_markdown(source_path, output_folder="images"):
     settings.debug.profile_pipeline_timings = True
 
     # Convert the document  
-    conversion_result = converter.convert(source = source_path, page_range=(1, 1))  
+    conversion_result = converter.convert(source=source_path, page_range=page_range)  
     doc = conversion_result.document  
 
     # List with total time per document
@@ -165,18 +168,26 @@ def extract_images_and_modify_markdown(source_path, output_folder="images"):
   
 # Usage example  
 if __name__ == "__main__":  
-    source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\4__Memories.pdf"  
+    #source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\4__Memories.pdf"  
     #source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\21__Analog_to_Digital_Converter___ADC.pdf"
-    #source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\10__External_Interrupts.pdf" 
-     
-    # Extract images and get modified markdown  
-    modified_markdown, saved_images, saved_tables = extract_images_and_modify_markdown(source)  
-      
+    source = r"C:\Users\E40065689\Desktop\pdf_parse\at90can128_rm.pdf_chapters\10__External_Interrupts.pdf" 
+
     # Save the modified markdown to a file  
-    with open("output_with_images.md", "w", encoding="utf-8") as f:  
+    # Generate output markdown filename based on source file name
+    source_stem = Path(source).stem
+    output_md_filename = f"{source_stem}_with_images.md"
+
+    # Extract images and get modified markdown  
+    # Create a unique output folder for images based on the source file name
+    output_folder = f"images_{source_stem}"
+    modified_markdown, saved_images, saved_tables = extract_images_and_modify_markdown(source, output_folder=output_folder)
+      
+    
+
+    with open(output_md_filename, "w", encoding="utf-8") as f:  
         f.write(modified_markdown)  
       
     print(f"Extracted {len([img for img in saved_images if img])} images")
     print(f"Extracted {len([tbl for tbl in saved_tables if tbl])} tables") 
-    print("Modified markdown saved to: output_with_images.md")  
-    print("Images and tables saved to: images/ folder")
+    print(f"Modified markdown saved to: {output_md_filename}")  
+    print(f"Images and tables saved to: {output_folder}/ folder")
