@@ -45,7 +45,7 @@ class PDFChapterSplitter:
         for idx, (title, start, end) in enumerate(chapter_ranges, 1):
             # Clean title for use as a filename
             title_clean = "".join(c if c.isalnum() else "_" for c in title)[:50]
-            output_path = os.path.join(output_dir, f"{idx:02d}___{title_clean}.pdf")
+            output_path = os.path.join(output_dir, f"{title_clean}.pdf")
             
             print(f"  -> Saving chapter '{title}' (pages {start + 1}-{end}) to '{output_path}'")
             
@@ -90,7 +90,7 @@ def main():
     output_dir = args.output_dir
     if not output_dir:
         base_name = os.path.splitext(os.path.basename(args.input_pdf))[0]
-        output_dir = f"{base_name}_chapters"
+        output_dir = f"{base_name}.pdf_chapters"
 
     try:
         splitter = PDFChapterSplitter(args.input_pdf)
