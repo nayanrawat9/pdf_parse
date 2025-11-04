@@ -111,7 +111,8 @@ class MarkdownImageProcessorApp:
     def process_markdown(self):
         try:
             md_file_path = self.file_path.get()
-            output_file = os.path.splitext(md_file_path)[0] + "_processed.md"
+            model_clean = self.model_var.get().replace(":", "_").replace(".", "_")
+            output_file = os.path.splitext(md_file_path)[0] + f"_{model_clean}_processed.md"
             
             # Read the markdown file
             with open(md_file_path, 'r', encoding='utf-8') as f:

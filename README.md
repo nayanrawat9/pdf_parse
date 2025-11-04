@@ -60,10 +60,11 @@ The recommended workflow for processing a PDF is as follows:
         -   **GUI**: Run `markdown_image_processor_gui.pyw`. This provides a graphical interface for processing the images.
         -   **CLI**: Run `markdown_image_processor_cli.py`. This allows you to process the images from the command line.
             -   Example commands:
-                ```bash
-                python markdown_image_processor_cli.py 4__Memories_with_images.md --model qwen2.5vl:32b
-                python markdown_image_processor_cli.py 4__Memories_with_images.md --model gemma3:27b-it-fp16
-                ```
+            ```bash
+            python3.13 markdown_image_processor_cli.py 4__Memories_with_images.md --model qwen2.5vl:32b
+            python3.13 markdown_image_processor_cli.py 4__Memories_with_images.md --model gemma3:27b-it-fp16
+            ```
+                The default output file will be named `<input_file>_<model>_processed.md` (e.g., `4__Memories_with_images_qwen2_5vl_32b_processed.md`). Use `--output` to specify a custom output file.
     -   This step uses a Vision Language Model to convert the embedded images into Markdown tables or text.
 
 ## Scripts
@@ -92,7 +93,7 @@ Here is a brief description of the main scripts in this repository:
     - Detailed logging and progress reporting
     ```
 -   `markdown_image_processor_gui.pyw`: A GUI tool to process images in a Markdown file and convert them to text or tables using a VLM.
--   `markdown_image_processor_cli.py`: The command-line version of the image processor.
+-   `markdown_image_processor_cli.py`: The command-line version of the image processor. Default output filename includes the selected model name.
 -   `process_pdf_toc_sections_GUI.pyw`: A GUI tool to extract text sections from a PDF based on its table of contents and save them as `.txt` files.
 -   `chunking.py`: A script to chunk Markdown files into smaller pieces, which is useful for processing with language models.
 -   `table_extractor_gui_improved.py`: A GUI tool to extract tables from images using a language model.

@@ -51,9 +51,10 @@ class MarkdownImageProcessorCLI:
         self.output_file = output_file or self._generate_output_filename()
 
     def _generate_output_filename(self) -> str:
-        """Generate output filename based on input file"""
+        """Generate output filename based on input file and model"""
         base, _ = os.path.splitext(self.input_file)
-        return f"{base}_processed.md"
+        model_clean = self.model.replace(":", "_").replace(".", "_")
+        return f"{base}_{model_clean}_processed.md"
 
     def _print_progress(self, current: int, total: int, message: str = ""):
         """Print progress to console"""
@@ -219,7 +220,7 @@ Available models:
 
     parser.add_argument(
         '-o', '--output',
-        help='Output file path (default: <input_file>_processed.md)'
+        help='Output file path (default: <input_file>_<model>_processed.md)'
     )
 
     parser.add_argument(
