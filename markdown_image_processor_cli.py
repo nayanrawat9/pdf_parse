@@ -13,7 +13,7 @@ from typing import List, Tuple, Optional
 
 
 # Available models
-MODELS = ["qwen2.5vl:32b", "gemma3:27b-it-fp16","gemma3:27b", "qwen2.5vl:7b", "qwen2.5vl:72b",  "gemma3:4b"]
+MODELS = ["qwen2.5vl:32b", "gemma3:27b-it-fp16","gemma3:27b", "qwen2.5vl:7b", "qwen2.5vl:72b",  "gemma3:4b", "qwen3-vl:235b-cloud"]
 
 # Base prompt with one-shot example
 BASE_PROMPT = """

@@ -9,7 +9,7 @@ from threading import Thread
 EXAMPLE_IMAGE = r"C:\Users\E40065689\Desktop\pdf_parse\images_10__External_Interrupts\table_6.png"
 
 # Available models
-MODELS = ["qwen2.5vl:7b", "qwen2.5vl:3b", "gemma3:4b"]
+MODELS = ["qwen2.5vl:7b", "qwen2.5vl:3b", "gemma3:4b", "qwen3-vl:235b-cloud"]
 
 # Base prompt with one-shot example
 BASE_PROMPT = """
