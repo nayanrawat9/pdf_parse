@@ -188,7 +188,8 @@ async def main():
     )
     parser.add_argument(
         "--prompt-file",
-        help="Optional path to a custom prompt file. If not provided, a default prompt will be used."
+        help=("Optional path to a custom prompt file. If not provided, the default prompt file "
+              "`default_prompt_detailed.txt` (located next to this script) will be used.")
     )
     parser.add_argument(
         "--output",
@@ -196,6 +197,16 @@ async def main():
     )
 
     args = parser.parse_args()
+
+    # Print resolved options for this run so the user can see what settings are being used.
+    resolved_prompt_path = args.prompt_file if args.prompt_file else str(Path(__file__).parent / "default_prompt_detailed.txt")
+    print("\nRUN OPTIONS")
+    print("-----------")
+    print(f"Input:    {args.input}")
+    print(f"Provider: {args.provider}")
+    print(f"Prompt:   {resolved_prompt_path}")
+    print(f"Output:   {args.output if args.output else '(auto-generated)'}")
+    print("")
 
     # --- Read Input File ---
     try:
