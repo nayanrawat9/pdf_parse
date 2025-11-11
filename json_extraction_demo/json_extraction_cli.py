@@ -117,6 +117,36 @@ class PeripheralData(BaseModel):
 # EXTRACTION FUNCTION
 # ============================================================================
 
+# Embedded default prompt (previously in default_prompt_detailed.txt)
+DEFAULT_PROMPT_DETAILED = """
+You are an expert at extracting hardware peripheral specifications from microcontroller reference manuals.
+
+Your task is to extract structured information suitable for creating a SystemC software model.
+
+FOCUS ON:
+- Register definitions with bit fields and access types (R/W/R/W)
+- Software operation procedures (step-by-step operations)
+- State machines if present
+- Interrupt sources and control bits
+- Configuration parameters
+
+IGNORE:
+- Physical/electrical characteristics
+- Detailed timing diagrams (unless critical for software behavior)
+- Manufacturing/testing information
+- Pin descriptions (unless they're control signals)
+
+IMPORTANT GUIDELINES:
+1. Extract ALL registers mentioned in the text
+2. For each register, extract ALL bit fields with their positions
+3. Preserve operation procedures as sequential steps
+4. Note interdependencies between registers
+5. Identify state machines from operational descriptions
+6. Extract interrupt enable/flag bits carefully
+7. Use exact names from documentation (preserve case and naming)
+8. If information is unclear, extract what you can and note in descriptions
+"""
+
 async def extract_peripheral_data(provider: str, mode: instructor.Mode, text: str, prompt_text: str):
     """
     Extracts peripheral data from markdown documentation using the specified provider and prompt.
@@ -187,11 +217,6 @@ async def main():
         help="The LLM provider to use (default: minimax-m2:cloud)."
     )
     parser.add_argument(
-        "--prompt-file",
-        help=("Optional path to a custom prompt file. If not provided, the default prompt file "
-              "`default_prompt_detailed.txt` (located next to this script) will be used.")
-    )
-    parser.add_argument(
         "--output",
         help="Optional path for the output JSON file. If not provided, a name will be generated based on the input file."
     )
@@ -199,12 +224,12 @@ async def main():
     args = parser.parse_args()
 
     # Print resolved options for this run so the user can see what settings are being used.
-    resolved_prompt_path = args.prompt_file if args.prompt_file else str(Path(__file__).parent / "default_prompt_detailed.txt")
+    # Note: The detailed prompt is embedded in the script (no external prompt file required).
     print("\nRUN OPTIONS")
     print("-----------")
     print(f"Input:    {args.input}")
     print(f"Provider: {args.provider}")
-    print(f"Prompt:   {resolved_prompt_path}")
+    print("Prompt:   (embedded detailed prompt)")
     print(f"Output:   {args.output if args.output else '(auto-generated)'}")
     print("")
 
@@ -216,24 +241,8 @@ async def main():
         print(f"Error: Input file not found at '{args.input}'")
         return
 
-    # --- Read Prompt File ---
-    if args.prompt_file:
-        try:
-            with open(args.prompt_file, "r", encoding="utf-8") as f:
-                prompt_text = f.read()
-        except FileNotFoundError:
-            print(f"Error: Prompt file not found at '{args.prompt_file}'")
-            return
-    else:
-        # Use the detailed default prompt if no file is provided.
-        default_prompt_path = Path(__file__).parent / "default_prompt_detailed.txt"
-        try:
-            with open(default_prompt_path, "r", encoding="utf-8") as f:
-                prompt_text = f.read()
-        except FileNotFoundError:
-            print(f"Error: Default prompt file not found at '{default_prompt_path}'")
-            # Fallback in case the file is missing.
-            prompt_text = "You are an expert at extracting hardware peripheral specifications from microcontroller reference manuals."
+    # --- Use Embedded Prompt ---
+    prompt_text = DEFAULT_PROMPT_DETAILED
 
 
     # --- Run Extraction ---
