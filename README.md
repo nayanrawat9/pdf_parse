@@ -7,6 +7,7 @@ This repository contains a collection of Python scripts for processing, parsing,
 - **PDF Chapter Splitting**: Automatically split a PDF into separate chapter files based on its table of contents.
 - **PDF to Markdown Conversion**: Convert PDF files into Markdown format, preserving text and embedding images.
 - **Image to Text/Table Conversion**: Utilize Vision Language Models (VLMs) to analyze images within the Markdown and convert them into text or Markdown tables.
+- **Structured JSON Extraction**: Extract hardware peripheral specifications from documentation into structured JSON using configurable Pydantic schemas and LLMs (Gemini, Ollama, OpenRouter).
 - **Text and Table Extraction**: Advanced tools for extracting text and tables from PDFs, with support for different table structures.
 - **GUI and CLI Interfaces**: Many scripts offer both graphical and command-line interfaces for ease of use.
 - **Content Chunking**: Scripts to chunk Markdown content for further processing with language models.
@@ -67,6 +68,19 @@ The recommended workflow for processing a PDF is as follows:
                 The default output file will be named `<input_file>_<model>_processed.md` (e.g., `4__Memories_with_images_qwen2_5vl_32b_processed.md`). Use `--output` to specify a custom output file.
     -   This step uses a Vision Language Model to convert the embedded images into Markdown tables or text.
 
+4.  **Extract Structured Data**:
+    -   Use the JSON extraction tools in the `json_extraction_demo/` folder to extract hardware peripheral specifications into structured JSON format.
+    -   **GUI**: Run `json_extraction_demo/json_extraction_gui_configurable.pyw` for a graphical interface with schema selection.
+    -   **CLI**: Use provider-specific scripts:
+        ```bash
+        # Using Gemini
+        python json_extraction_demo/json_extraction_cli_gemini.py input.md --output output.json
+
+        # Using OpenRouter
+        python json_extraction_demo/json_extraction_cli_openrouter.py input.md --output output.json
+        ```
+    -   Choose from multiple extraction schemas: Detailed Peripheral, Simple Registers, Operations Focused, or SystemC Model Generation.
+
 ## Scripts
 
 Here is a brief description of the main scripts in this repository:
@@ -101,6 +115,66 @@ Here is a brief description of the main scripts in this repository:
 -   `layoutparser_OCR_demo.py`: A demonstration of using `layoutparser` and OCR for text and layout detection.
 -   `relevance_filter.py`: A script for filtering content based on relevance.
 -   `unstructured_pdf_element_extractor_GUI.py`: A GUI tool for extracting elements from a PDF using the `unstructured` library.
+
+## JSON Extraction Demo
+
+The `json_extraction_demo/` folder contains tools for extracting structured hardware peripheral specifications from markdown documentation using LLMs and Pydantic schemas.
+
+### Key Features
+
+- **Configurable Schemas**: Choose from multiple extraction schemas optimized for different use cases:
+  - **Detailed Peripheral (Full)**: Complete extraction with registers, operations, formulas, state machines, and interrupts
+  - **Simple Registers Only**: Focused extraction of register definitions and bit fields
+  - **Operations Focused**: Extraction of operational procedures and workflows
+  - **SystemC Model Generation**: Optimized for generating SystemC models with Read/Write behaviors, internal state, ports, and timing
+
+- **Multiple LLM Providers**: Support for Gemini, Ollama, and OpenRouter APIs
+
+- **Extensible Architecture**: Easy to add custom schemas by editing `extraction_schemas.py`
+
+### Files
+
+- `extraction_schemas.py`: Central configuration file containing all Pydantic schema definitions and extraction prompts
+- `json_extraction_gui_configurable.pyw`: GUI application with schema dropdown selection
+- `json_extraction_gui_unified.pyw`: Unified GUI supporting all three LLM providers
+- `json_extraction_cli_gemini.py`: CLI tool for Gemini API
+- `json_extraction_cli_openrouter.py`: CLI tool for OpenRouter API
+- `json_extraction_cli_ollama.py`: CLI tool for local Ollama models
+
+### Usage Examples
+
+GUI with schema selection:
+```bash
+python json_extraction_demo/json_extraction_gui_configurable.pyw
+```
+
+CLI extraction with Gemini:
+```bash
+python json_extraction_demo/json_extraction_cli_gemini.py input.md \
+    --output output.json \
+    --model gemini-2.0-flash-exp
+```
+
+### Adding Custom Schemas
+
+To add a new extraction schema:
+
+1. Open `json_extraction_demo/extraction_schemas.py`
+2. Define your Pydantic model classes
+3. Create a prompt string describing the extraction task
+4. Add an entry to the `SCHEMA_OPTIONS` dictionary:
+
+```python
+SCHEMA_OPTIONS = {
+    "Your Schema Name": {
+        "schema": YourSchemaClass,
+        "prompt": YOUR_PROMPT_STRING,
+        "description": "Brief description"
+    }
+}
+```
+
+The new schema will automatically appear in the GUI dropdown and can be used in CLI tools.
 
 ## Miscellaneous
 
