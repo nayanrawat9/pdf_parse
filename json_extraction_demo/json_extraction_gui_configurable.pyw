@@ -21,7 +21,8 @@ from queue import Queue
 import instructor
 
 # Import schema configurations
-from extraction_schemas import get_schema_option, get_available_options
+#from extraction_schemas import get_schema_option, get_available_options
+from extraction_schema_gpt5 import get_schema_option, get_available_options
 
 # Add proxy settings for non-Windows platforms
 if sys.platform != "win32":
@@ -54,6 +55,8 @@ async def extract_with_gemini(api_key: str, model: str, text: str, prompt_text: 
     genai.configure(api_key=api_key)
     
     model_mapping = {
+        #gemini-3-pro-preview
+        "gemini-3-pro-preview": "google/gemini-3-pro-preview",
         "gemini-2.5-pro": "google/gemini-2.5-pro",
         "gemini-2.5-flash": "google/gemini-2.5-flash"
     }
@@ -250,11 +253,11 @@ class ExtractionGUI:
         # Model selection dropdown
         self.provider_model_label = ttk.Label(provider_frame, text="Model:")
         self.provider_model_label.grid(row=1, column=0, sticky=tk.W)
-        self.provider_model_var = tk.StringVar(value="gemini-2.5-pro")
+        self.provider_model_var = tk.StringVar(value="gemini-3-pro-preview")
         
         # Define model lists for each provider
         self.model_lists = {
-            "gemini": ["gemini-2.5-pro", "gemini-2.5-flash"],
+            "gemini": ["gemini-3-pro-preview", "gemini-2.5-pro", "gemini-2.5-flash"],
             "openrouter": [
                 "openrouter/sherlock-think-alpha",
                 "z-ai/glm-4.5-air:free",
@@ -262,6 +265,7 @@ class ExtractionGUI:
                 "openrouter/sherlock-dash-alpha"
             ],
             "ollama": [
+                "gemini-3-pro-preview:latest",
                 "kimi-k2-thinking:cloud",
                 "glm-4.6:cloud",
                 "kimi-k2:1t-cloud",
@@ -387,6 +391,8 @@ class ExtractionGUI:
         
         self.log(f"\nSCHEMA CHANGED: {schema_name}")
         self.log(f"  {schema_config['description']}")
+        
+        self.update_output_filename()
 
     def on_provider_change(self, event=None):
         """Update UI when provider changes."""
@@ -397,14 +403,14 @@ class ExtractionGUI:
 
         if provider == "gemini":
             self.provider_model_label.config(text="Model:")
-            self.provider_model_var.set("gemini-2.5-pro")
+            self.provider_model_var.set("gemini-3-pro-preview")
             self.api_key_entry.config(show="*")
             self.log("\nPROVIDER CHANGED: Gemini")
             self.log("  Requires: API Key (enter above)")
             self.log(f"  Default Model: {self.provider_model_var.get()}")
         elif provider == "ollama":
             self.provider_model_label.config(text="Model:")
-            self.provider_model_var.set("minimax-m2:cloud")
+            self.provider_model_var.set("gemini-3-pro-preview:latest")
             self.api_key_entry.config(show="")
             self.log("\nPROVIDER CHANGED: Ollama")
             self.log("  Requires: Local Ollama server running")
@@ -443,8 +449,18 @@ class ExtractionGUI:
             else:
                 model_part = provider
             
-            output_name = f"{input_stem}_extracted_{model_part}.json"
-            self.output_file_var.set(output_name)
+            schema_name = self.schema_var.get()
+            
+            # Save to the same folder as the script (json_extraction_demo)
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            
+            # Sanitize schema name for filename
+            safe_schema = schema_name.replace(" ", "_").replace("(", "").replace(")", "")
+            
+            output_name = f"{input_stem}_{provider}_{model_part}_{safe_schema}.json"
+            output_path = os.path.join(script_dir, output_name)
+            
+            self.output_file_var.set(output_path)
 
     def browse_input(self):
         """Open file browser for input file."""
@@ -758,17 +774,52 @@ class ExtractionGUI:
                 self.output_queue.put("EXTRACTION SUMMARY")
                 self.output_queue.put(f"{'='*80}")
                 self.output_queue.put(f"Schema: {schema_name}")
-                self.output_queue.put(f"Peripheral: {result.peripheral_name}")
                 
-                # Show schema-specific summary
-                result_dict = result.model_dump()
-                for key, value in result_dict.items():
-                    if key == "peripheral_name" or key == "description":
-                        continue
-                    if isinstance(value, list):
-                        self.output_queue.put(f"{key.replace('_', ' ').title()}: {len(value)}")
-                    elif value is not None:
-                        self.output_queue.put(f"{key.replace('_', ' ').title()}: Yes")
+                # Schema-specific summary
+                if schema_name == "Detailed Peripheral (Full)":
+                    self.output_queue.put(f"Peripheral: {result.peripheral_name}")
+                    self.output_queue.put(f"Registers: {len(result.registers)}")
+                    self.output_queue.put(f"Operations: {len(result.operations)}")
+                    self.output_queue.put(f"State Machine: {'Yes' if result.state_machine else 'No'}")
+                    self.output_queue.put(f"Interrupts: {'Yes' if result.interrupts else 'No'}")
+                    self.output_queue.put(f"Formulas: {len(result.conversion_formulas)}")
+                    self.output_queue.put(f"Config Params: {len(result.configuration_parameters)}")
+                    
+                elif schema_name == "Simple Registers Only":
+                    self.output_queue.put(f"Peripheral: {result.peripheral_name}")
+                    self.output_queue.put(f"Registers: {len(result.registers)}")
+                    
+                elif schema_name == "Operations Focused":
+                    self.output_queue.put(f"Peripheral: {result.peripheral_name}")
+                    self.output_queue.put(f"Operations: {len(result.operations)}")
+                    
+                elif schema_name == "SystemC Model Generation":
+                    self.output_queue.put(f"Peripheral: {result.peripheral_name}")
+                    self.output_queue.put(f"Registers: {len(result.registers)}")
+                    self.output_queue.put(f"Internal State Vars: {len(result.internal_state)}")
+                    self.output_queue.put(f"Calculations: {len(result.calculations)}")
+                    self.output_queue.put(f"External Ports: {len(result.external_ports)}")
+                    self.output_queue.put(f"Operational Modes: {len(result.operational_modes)}")
+                    
+                elif schema_name == "SystemC Complete Specification":
+                    self.output_queue.put(f"Module Name: {result.module_name}")
+                    self.output_queue.put(f"Ports: {len(result.ports)}")
+                    self.output_queue.put(f"Registers: {len(result.registers)}")
+                    self.output_queue.put(f"Internal State: {len(result.internal_state)}")
+                    self.output_queue.put(f"Reset Logic Steps: {len(result.reset_logic)}")
+                
+                else:
+                    # Fallback for unknown schemas
+                    result_dict = result.model_dump()
+                    for key, value in result_dict.items():
+                        if key in ["peripheral_name", "module_name", "description"]:
+                            if key != "description":
+                                self.output_queue.put(f"{key.replace('_', ' ').title()}: {value}")
+                            continue
+                        if isinstance(value, list):
+                            self.output_queue.put(f"{key.replace('_', ' ').title()}: {len(value)}")
+                        elif value is not None:
+                            self.output_queue.put(f"{key.replace('_', ' ').title()}: Yes")
                 
                 self.output_queue.put(">>> Status: COMPLETE")
             else:
