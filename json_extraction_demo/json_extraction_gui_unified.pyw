@@ -213,6 +213,8 @@ async def extract_with_gemini(api_key: str, model: str, text: str, prompt_text: 
     
     # Map user-friendly model names to API model names
     model_mapping = {
+        #gemini-3-pro-preview
+        "gemini-3-pro-preview": "google/gemini-3-pro-preview",
         "gemini-2.5-pro": "google/gemini-2.5-pro",
         "gemini-2.5-flash": "google/gemini-2.5-flash"
     }
@@ -387,11 +389,11 @@ class ExtractionGUI:
         # Model selection dropdown (changes based on provider)
         self.provider_model_label = ttk.Label(provider_frame, text="Model:")
         self.provider_model_label.grid(row=1, column=0, sticky=tk.W)
-        self.provider_model_var = tk.StringVar(value="gemini-2.5-pro")
+        self.provider_model_var = tk.StringVar(value="gemini-3-pro-preview")
         
         # Define model lists for each provider
         self.model_lists = {
-            "gemini": ["gemini-2.5-pro", "gemini-2.5-flash"],
+            "gemini": ["gemini-3-pro-preview","gemini-2.5-pro", "gemini-2.5-flash"],
             "openrouter": [
                 "openrouter/sherlock-think-alpha",
                 "z-ai/glm-4.5-air:free",
@@ -517,7 +519,7 @@ class ExtractionGUI:
 
         if provider == "gemini":
             self.provider_model_label.config(text="Model:")
-            self.provider_model_var.set("gemini-2.5-pro")
+            self.provider_model_var.set("gemini-3-pro-preview")
             self.api_key_entry.config(show="*")
             self.clear_output()
             self.log("PROVIDER CHANGED: Gemini")
