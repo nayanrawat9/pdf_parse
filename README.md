@@ -8,6 +8,8 @@ This repository contains a collection of Python scripts for processing, parsing,
 - **PDF to Markdown Conversion**: Convert PDF files into Markdown format, preserving text and embedding images.
 - **Image to Text/Table Conversion**: Utilize Vision Language Models (VLMs) to analyze images within the Markdown and convert them into text or Markdown tables.
 - **Structured JSON Extraction**: Extract hardware peripheral specifications from documentation into structured JSON using configurable Pydantic schemas and LLMs (Gemini, Ollama, OpenRouter).
+- **JSON to SystemC Code Generation**: Generate production-ready SystemC/TLM implementation code from structured JSON using LLMs via Ollama, with reference-based style matching.
+- **SystemC Code Conversion**: Bidirectional conversion between generic/clean SystemC code and proprietary DESYRE framework format using configurable rule-based transformations.
 - **Text and Table Extraction**: Advanced tools for extracting text and tables from PDFs, with support for different table structures.
 - **GUI and CLI Interfaces**: Many scripts offer both graphical and command-line interfaces for ease of use.
 - **Content Chunking**: Scripts to chunk Markdown content for further processing with language models.
@@ -81,6 +83,20 @@ The recommended workflow for processing a PDF is as follows:
         ```
     -   Choose from multiple extraction schemas: Detailed Peripheral, Simple Registers, Operations Focused, or SystemC Model Generation.
 
+5.  **Generate SystemC Code from JSON**:
+    -   Use the code generation tool to convert the structured JSON into SystemC/TLM implementation files.
+    -   **GUI**: Run `json_extraction_demo/ollama_codegen.py`.
+    -   The tool takes 4 inputs: the JSON schema + 3 reference SystemC files (`IP_Interface.h`, `Basic.h`, `Basic.cpp`).
+    -   Select an Ollama model from the dropdown and click Generate.
+    -   The LLM produces 3 SystemC files matching the style of the reference code.
+
+6.  **Convert SystemC Code (Clean ↔ Proprietary)**:
+    -   Use the code converter to transform between generic SystemC and proprietary DESYRE framework format.
+    -   **GUI**: Run `json_extraction_demo/code_converter/code_converter_gui.py`.
+    -   Supports directory mode (all `.h`/`.cpp` files) or individual file selection.
+    -   Bidirectional: "Proprietary → Clean" or "Clean → Proprietary".
+    -   Conversion rules (includes, macros, TLM sockets, logging) are defined in `CONVERSION_CONFIG.json`.
+
 ## Scripts
 
 Here is a brief description of the main scripts in this repository:
@@ -140,6 +156,9 @@ The `json_extraction_demo/` folder contains tools for extracting structured hard
 - `json_extraction_cli_gemini.py`: CLI tool for Gemini API
 - `json_extraction_cli_openrouter.py`: CLI tool for OpenRouter API
 - `json_extraction_cli_ollama.py`: CLI tool for local Ollama models
+- `ollama_codegen.py`: GUI tool for generating SystemC code from JSON schema using Ollama LLMs
+- `code_converter/code_converter_gui.py`: GUI tool for bidirectional conversion between clean and proprietary (DESYRE) SystemC code
+- `code_converter/CONVERSION_CONFIG.json`: Configuration file defining all conversion rules
 
 ### Usage Examples
 
